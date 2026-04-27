@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Euconomizo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #f5f5f5;
+    }
+
+    .topo {
+      background: #2E7D32;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .saldo {
+      font-size: 24px;
+      color: #2E7D32;
+      font-weight: bold;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      background: #4CAF50;
+      color: white;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="topo">
+  <h2>Euconomizo</h2>
+</div>
+
+<div class="container">
+
+  <div class="card">
+    <div>Saldo atual</div>
+    <div class="saldo">R$ 0,00</div>
+  </div>
+
+  <div class="card">
+    <div>Ganhos do mês</div>
+    <div>R$ 0,00</div>
+  </div>
+
+  <div class="card">
+    <div>Gastos do mês</div>
+    <div>R$ 0,00</div>
+  </div>
+
+  <button onclick="alert('Adicionar ganho')">+ Adicionar ganho</button>
+  <button onclick="alert('Adicionar gasto')">+ Adicionar gasto</button>
+
+</div>
+
+</body>
+</html>
