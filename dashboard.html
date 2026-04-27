@@ -1,53 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard - Euconomizo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>Dashboard - Euconomizo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      background: #f5f5f5;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #f5f5f5;
+}
 
-    .topo {
-      background: #2E7D32;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
+.topo {
+  background: #2E7D32;
+  color: white;
+  padding: 20px;
+  text-align: center;
+}
 
-    .container {
-      padding: 20px;
-    }
+.container {
+  padding: 15px;
+}
 
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
 
-    .saldo {
-      font-size: 24px;
-      color: #2E7D32;
-      font-weight: bold;
-    }
+button {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 10px;
+  background: #4CAF50;
+  color: white;
+  margin-top: 10px;
+}
 
-    button {
-      width: 100%;
-      padding: 15px;
-      border: none;
-      border-radius: 10px;
-      background: #4CAF50;
-      color: white;
-      font-size: 16px;
-      margin-top: 10px;
-    }
-  </style>
+.lista {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 15px;
+}
+</style>
 </head>
 
 <body>
@@ -59,24 +58,105 @@
 <div class="container">
 
   <div class="card">
-    <div>Saldo atual</div>
-    <div class="saldo">R$ 0,00</div>
+    <b>Saldo:</b> R$ <span id="saldo">0</span>
   </div>
 
   <div class="card">
-    <div>Ganhos do mês</div>
-    <div>R$ 0,00</div>
+    <b>Ganhos:</b> R$ <span id="ganhos">0</span>
   </div>
 
   <div class="card">
-    <div>Gastos do mês</div>
-    <div>R$ 0,00</div>
+    <b>Gastos:</b> R$ <span id="gastos">0</span>
   </div>
 
-  <button onclick="alert('Adicionar ganho')">+ Adicionar ganho</button>
-  <button onclick="alert('Adicionar gasto')">+ Adicionar gasto</button>
+  <button onclick="addGanho()">+ Adicionar ganho</button>
+  <button onclick="addGasto()">+ Adicionar gasto</button>
+
+  <div class="lista" id="lista"></div>
 
 </div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCElTa77Q7PiEgsMadbxDxZvxC-QE1P-ks",
+  authDomain: "euconomizo-ebc13.firebaseapp.com",
+  projectId: "euconomizo-ebc13",
+  storageBucket: "euconomizo-ebc13.firebasestorage.app",
+  messagingSenderId: "184248751974",
+  appId: "1:184248751974:web:43edb4192a766a2a019aa7"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+let totalGanhos = 0;
+let totalGastos = 0;
+
+window.addGanho = async function () {
+  const valor = prompt("Valor do ganho:");
+  if (!valor) return;
+
+  await addDoc(collection(db, "lancamentos"), {
+    tipo: "ganho",
+    valor: parseFloat(valor),
+    usuario: auth.currentUser?.email || "anon",
+    data: new Date()
+  });
+
+  carregarDados();
+};
+
+window.addGasto = async function () {
+  const valor = prompt("Valor do gasto:");
+  if (!valor) return;
+
+  await addDoc(collection(db, "lancamentos"), {
+    tipo: "gasto",
+    valor: parseFloat(valor),
+    usuario: auth.currentUser?.email || "anon",
+    data: new Date()
+  });
+
+  carregarDados();
+};
+
+async function carregarDados() {
+
+  totalGanhos = 0;
+  totalGastos = 0;
+
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  const querySnapshot = await getDocs(collection(db, "lancamentos"));
+
+  querySnapshot.forEach((doc) => {
+    const d = doc.data();
+
+    if (d.tipo === "ganho") totalGanhos += d.valor;
+    if (d.tipo === "gasto") totalGastos += d.valor;
+
+    lista.innerHTML += `
+      <div>
+        ${d.tipo} - R$ ${d.valor}
+      </div>
+    `;
+  });
+
+  document.getElementById("ganhos").innerText = totalGanhos.toFixed(2);
+  document.getElementById("gastos").innerText = totalGastos.toFixed(2);
+  document.getElementById("saldo").innerText = (totalGanhos - totalGastos).toFixed(2);
+}
+
+carregarDados();
+
+</script>
 
 </body>
 </html>
