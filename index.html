@@ -1,41 +1,128 @@
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Euconomizo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyCElTa77Q7PiEgsMadbxDxZvxC-QE1P-ks",
-    authDomain: "euconomizo-ebc13.firebaseapp.com",
-    projectId: "euconomizo-ebc13",
-    storageBucket: "euconomizo-ebc13.firebasestorage.app",
-    messagingSenderId: "184248751974",
-    appId: "1:184248751974:web:43edb4192a766a2a019aa7"
-  };
+  <style>
+    * { box-sizing: border-box; }
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-
-  window.login = async function () {
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("senha").value;
-
-    try {
-      await signInWithEmailAndPassword(auth, email, senha);
-      alert("Login realizado com sucesso 🚀");
-      window.location.href = "dashboard.html";
-    } catch (error) {
-      alert(error.message);
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #4CAF50, #2E7D32);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-  };
 
-  window.cadastrar = async function () {
-    const email = document.getElementById("email").value;
-    const senha = document.getElementById("senha").value;
-
-    try {
-      await createUserWithEmailAndPassword(auth, email, senha);
-      alert("Conta criada com sucesso 🎉");
-    } catch (error) {
-      alert(error.message);
+    .card {
+      background: white;
+      width: 92%;
+      max-width: 420px;
+      padding: 35px 25px;
+      border-radius: 22px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.18);
     }
-  };
-</script>
+
+    h1 {
+      color: #2E7D32;
+      font-size: 38px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      color: #666;
+      font-size: 18px;
+      margin-bottom: 28px;
+    }
+
+    input {
+      width: 100%;
+      padding: 16px;
+      margin-bottom: 14px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      font-size: 17px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 12px;
+      background: #4CAF50;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .texto {
+      margin-top: 22px;
+      color: #666;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Euconomizo</h1>
+    <p>Controle financeiro do casal 💚</p>
+
+    <input type="email" id="email" placeholder="Seu e-mail">
+    <input type="password" id="senha" placeholder="Sua senha">
+
+    <button onclick="cadastrar()">Criar conta</button>
+    <button onclick="login()">Entrar</button>
+
+    <div class="texto">Organize suas finanças juntos 🚀</div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCElTa77Q7PiEgsMadbxDxZvxC-QE1P-ks",
+      authDomain: "euconomizo-ebc13.firebaseapp.com",
+      projectId: "euconomizo-ebc13",
+      storageBucket: "euconomizo-ebc13.firebasestorage.app",
+      messagingSenderId: "184248751974",
+      appId: "1:184248751974:web:43edb4192a766a2a019aa7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    window.cadastrar = async function () {
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+
+      try {
+        await createUserWithEmailAndPassword(auth, email, senha);
+        alert("Conta criada com sucesso!");
+      } catch (error) {
+        alert("Erro: " + error.message);
+      }
+    };
+
+    window.login = async function () {
+      const email = document.getElementById("email").value;
+      const senha = document.getElementById("senha").value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, senha);
+        alert("Login realizado com sucesso!");
+      } catch (error) {
+        alert("Erro: " + error.message);
+      }
+    };
+  </script>
+
+</body>
+</html>
