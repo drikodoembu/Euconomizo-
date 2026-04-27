@@ -6,45 +6,164 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Arial;
-  background: #f5f5f5;
+  font-family: Arial, sans-serif;
+  background: #f3f5f4;
+  color: #222;
 }
 
 .topo {
-  background: #2E7D32;
+  background: linear-gradient(135deg, #1b5e20, #43a047);
   color: white;
-  padding: 20px;
+  padding: 24px 18px;
   text-align: center;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+}
+
+.topo h2 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.topo p {
+  margin: 6px 0 0;
+  opacity: 0.9;
 }
 
 .container {
-  padding: 15px;
+  padding: 16px;
+  max-width: 900px;
+  margin: auto;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
 }
 
 .card {
   background: white;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.card h3 {
+  margin-top: 0;
+}
+
+.valor {
+  font-size: 26px;
+  font-weight: bold;
+  color: #2e7d32;
+}
+
+.negativo {
+  color: #c62828;
+}
+
+.formulario label {
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 12px;
+  display: block;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 14px;
+  margin-top: 6px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 16px;
+}
+
+textarea {
+  resize: none;
+  min-height: 70px;
 }
 
 button {
   width: 100%;
   padding: 15px;
   border: none;
-  border-radius: 10px;
-  background: #4CAF50;
+  border-radius: 14px;
+  background: #43a047;
   color: white;
+  font-size: 16px;
+  margin-top: 14px;
+  cursor: pointer;
+}
+
+button.secundario {
+  background: #eee;
+  color: #333;
+}
+
+button.perigo {
+  background: #c62828;
+}
+
+.lancamento {
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+}
+
+.lancamento:last-child {
+  border-bottom: none;
+}
+
+.linha {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tipo-ganho {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.tipo-gasto {
+  color: #c62828;
+  font-weight: bold;
+}
+
+.pequeno {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.categoria {
+  display: inline-block;
+  background: #e8f5e9;
+  color: #2e7d32;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.alerta {
+  background: #fff8e1;
+  border-left: 5px solid #fbc02d;
+  padding: 12px;
+  border-radius: 12px;
   margin-top: 10px;
 }
 
-.lista {
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 15px;
+@media (min-width: 700px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 </style>
 </head>
@@ -53,34 +172,92 @@ button {
 
 <div class="topo">
   <h2>Euconomizo</h2>
+  <p id="usuarioLogado">Controle financeiro do casal 💚</p>
 </div>
 
 <div class="container">
 
-  <div class="card">
-    <b>Saldo:</b> R$ <span id="saldo">0</span>
+  <div class="grid">
+    <div class="card">
+      <div>Ganhos</div>
+      <div class="valor">R$ <span id="totalGanhos">0,00</span></div>
+    </div>
+
+    <div class="card">
+      <div>Gastos</div>
+      <div class="valor negativo">R$ <span id="totalGastos">0,00</span></div>
+    </div>
+
+    <div class="card">
+      <div>Saldo</div>
+      <div class="valor">R$ <span id="saldoFinal">0,00</span></div>
+    </div>
+  </div>
+
+  <div class="card formulario" style="margin-top:16px;">
+    <h3>Novo lançamento</h3>
+
+    <label>Tipo</label>
+    <select id="tipo" onchange="atualizarCategorias()">
+      <option value="ganho">Ganho</option>
+      <option value="gasto">Gasto</option>
+    </select>
+
+    <label>Nome</label>
+    <input type="text" id="nome" placeholder="Ex: Salário, Mercado, Aluguel">
+
+    <label>Valor</label>
+    <input type="number" id="valor" placeholder="Ex: 120.50" step="0.01">
+
+    <label>Categoria</label>
+    <select id="categoria"></select>
+
+    <label>Data</label>
+    <input type="date" id="data">
+
+    <label>Observação</label>
+    <textarea id="observacao" placeholder="Ex: compra da semana, renda extra, conta de luz..."></textarea>
+
+    <button onclick="salvarLancamento()">Salvar lançamento</button>
   </div>
 
   <div class="card">
-    <b>Ganhos:</b> R$ <span id="ganhos">0</span>
+    <h3>Resumo inteligente</h3>
+    <div id="alertas"></div>
   </div>
 
   <div class="card">
-    <b>Gastos:</b> R$ <span id="gastos">0</span>
+    <h3>Resumo por categoria</h3>
+    <div id="resumoCategorias"></div>
   </div>
 
-  <button onclick="addGanho()">+ Adicionar ganho</button>
-  <button onclick="addGasto()">+ Adicionar gasto</button>
+  <div class="card">
+    <h3>Histórico</h3>
+    <div id="historico">Carregando...</div>
+  </div>
 
-  <div class="lista" id="lista"></div>
+  <button class="perigo" onclick="sair()">Sair</button>
 
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCElTa77Q7PiEgsMadbxDxZvxC-QE1P-ks",
@@ -92,70 +269,251 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-let totalGanhos = 0;
-let totalGastos = 0;
+let usuarioAtual = null;
 
-window.addGanho = async function () {
-  const valor = prompt("Valor do ganho:");
-  if (!valor) return;
+const categoriasGanhos = [
+  "Salário",
+  "Renda extra",
+  "Venda",
+  "Presente",
+  "Reembolso",
+  "Investimentos",
+  "Outros"
+];
 
-  await addDoc(collection(db, "lancamentos"), {
-    tipo: "ganho",
-    valor: parseFloat(valor),
-    usuario: auth.currentUser?.email || "anon",
-    data: new Date()
+const categoriasGastos = [
+  "Alimentação",
+  "Moradia",
+  "Contas",
+  "Transporte",
+  "Saúde",
+  "Lazer",
+  "Compras",
+  "Educação",
+  "Igreja/doações",
+  "Dívidas",
+  "Cartão de crédito",
+  "Outros"
+];
+
+function formatarMoeda(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   });
+}
 
-  carregarDados();
+function dataHoje() {
+  const hoje = new Date();
+  return hoje.toISOString().split("T")[0];
+}
+
+window.atualizarCategorias = function () {
+  const tipo = document.getElementById("tipo").value;
+  const categoria = document.getElementById("categoria");
+
+  const lista = tipo === "ganho" ? categoriasGanhos : categoriasGastos;
+
+  categoria.innerHTML = "";
+
+  lista.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item;
+    option.textContent = item;
+    categoria.appendChild(option);
+  });
 };
 
-window.addGasto = async function () {
-  const valor = prompt("Valor do gasto:");
-  if (!valor) return;
+window.salvarLancamento = async function () {
+  const tipo = document.getElementById("tipo").value;
+  const nome = document.getElementById("nome").value.trim();
+  const valor = parseFloat(document.getElementById("valor").value);
+  const categoria = document.getElementById("categoria").value;
+  const data = document.getElementById("data").value;
+  const observacao = document.getElementById("observacao").value.trim();
+
+  if (!usuarioAtual) {
+    alert("Você precisa estar logado.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  if (!nome) {
+    alert("Digite o nome do lançamento.");
+    return;
+  }
+
+  if (!valor || valor <= 0) {
+    alert("Digite um valor válido.");
+    return;
+  }
+
+  if (!data) {
+    alert("Escolha uma data.");
+    return;
+  }
 
   await addDoc(collection(db, "lancamentos"), {
-    tipo: "gasto",
-    valor: parseFloat(valor),
-    usuario: auth.currentUser?.email || "anon",
-    data: new Date()
+    tipo,
+    nome,
+    valor,
+    categoria,
+    data,
+    observacao,
+    usuarioEmail: usuarioAtual.email,
+    usuarioId: usuarioAtual.uid,
+    criadoEm: serverTimestamp()
   });
 
-  carregarDados();
+  document.getElementById("nome").value = "";
+  document.getElementById("valor").value = "";
+  document.getElementById("observacao").value = "";
+  document.getElementById("data").value = dataHoje();
+
+  alert("Lançamento salvo com sucesso!");
+  carregarLancamentos();
 };
 
-async function carregarDados() {
+async function carregarLancamentos() {
+  const historico = document.getElementById("historico");
+  const resumoCategorias = document.getElementById("resumoCategorias");
+  const alertas = document.getElementById("alertas");
 
-  totalGanhos = 0;
-  totalGastos = 0;
+  historico.innerHTML = "Carregando...";
+  resumoCategorias.innerHTML = "";
+  alertas.innerHTML = "";
 
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
+  let totalGanhos = 0;
+  let totalGastos = 0;
+  let totalLazer = 0;
+  let totalAlimentacao = 0;
+  let categorias = {};
 
-  const querySnapshot = await getDocs(collection(db, "lancamentos"));
+  const q = query(collection(db, "lancamentos"), orderBy("data", "desc"));
+  const snapshot = await getDocs(q);
 
-  querySnapshot.forEach((doc) => {
-    const d = doc.data();
+  historico.innerHTML = "";
 
-    if (d.tipo === "ganho") totalGanhos += d.valor;
-    if (d.tipo === "gasto") totalGastos += d.valor;
+  if (snapshot.empty) {
+    historico.innerHTML = "Nenhum lançamento ainda.";
+  }
 
-    lista.innerHTML += `
-      <div>
-        ${d.tipo} - R$ ${d.valor}
+  snapshot.forEach(doc => {
+    const item = doc.data();
+
+    if (item.tipo === "ganho") {
+      totalGanhos += Number(item.valor);
+    } else {
+      totalGastos += Number(item.valor);
+    }
+
+    if (!categorias[item.categoria]) {
+      categorias[item.categoria] = 0;
+    }
+
+    categorias[item.categoria] += Number(item.valor);
+
+    if (item.categoria === "Lazer") {
+      totalLazer += Number(item.valor);
+    }
+
+    if (item.categoria === "Alimentação") {
+      totalAlimentacao += Number(item.valor);
+    }
+
+    const classeTipo = item.tipo === "ganho" ? "tipo-ganho" : "tipo-gasto";
+    const sinal = item.tipo === "ganho" ? "+" : "-";
+
+    historico.innerHTML += `
+      <div class="lancamento">
+        <div class="linha">
+          <div>
+            <strong>${item.nome}</strong>
+            <div class="${classeTipo}">${item.tipo === "ganho" ? "Ganho" : "Gasto"}</div>
+          </div>
+          <div class="${classeTipo}">
+            ${sinal} R$ ${formatarMoeda(item.valor)}
+          </div>
+        </div>
+
+        <div class="categoria">${item.categoria}</div>
+
+        <div class="pequeno">
+          Data: ${item.data || "sem data"}<br>
+          Por: ${item.usuarioEmail || "usuário"}<br>
+          ${item.observacao ? "Obs: " + item.observacao : ""}
+        </div>
       </div>
     `;
   });
 
-  document.getElementById("ganhos").innerText = totalGanhos.toFixed(2);
-  document.getElementById("gastos").innerText = totalGastos.toFixed(2);
-  document.getElementById("saldo").innerText = (totalGanhos - totalGastos).toFixed(2);
+  const saldo = totalGanhos - totalGastos;
+
+  document.getElementById("totalGanhos").textContent = formatarMoeda(totalGanhos);
+  document.getElementById("totalGastos").textContent = formatarMoeda(totalGastos);
+  document.getElementById("saldoFinal").textContent = formatarMoeda(saldo);
+
+  Object.keys(categorias).forEach(cat => {
+    resumoCategorias.innerHTML += `
+      <div class="linha" style="padding:8px 0; border-bottom:1px solid #eee;">
+        <span>${cat}</span>
+        <strong>R$ ${formatarMoeda(categorias[cat])}</strong>
+      </div>
+    `;
+  });
+
+  if (saldo < 0) {
+    alertas.innerHTML += `
+      <div class="alerta">
+        Atenção: os gastos estão maiores que os ganhos. Que tal revisar algumas despesas?
+      </div>
+    `;
+  }
+
+  if (totalLazer > totalGanhos * 0.25 && totalGanhos > 0) {
+    alertas.innerHTML += `
+      <div class="alerta">
+        O gasto com lazer está alto este mês. Talvez reduzir um pouco ajude nas metas do casal.
+      </div>
+    `;
+  }
+
+  if (totalAlimentacao > totalGanhos * 0.35 && totalGanhos > 0) {
+    alertas.innerHTML += `
+      <div class="alerta">
+        A alimentação está consumindo uma boa parte da renda. Vale observar mercado, delivery e lanches.
+      </div>
+    `;
+  }
+
+  if (!alertas.innerHTML) {
+    alertas.innerHTML = `
+      <div class="alerta">
+        Tudo certo por enquanto. Continuem registrando os ganhos e gastos para o app aprender melhor o padrão de vocês.
+      </div>
+    `;
+  }
 }
 
-carregarDados();
+window.sair = async function () {
+  await signOut(auth);
+  window.location.href = "index.html";
+};
 
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    usuarioAtual = user;
+    document.getElementById("usuarioLogado").textContent = "Logado como: " + user.email;
+    document.getElementById("data").value = dataHoje();
+    atualizarCategorias();
+    carregarLancamentos();
+  } else {
+    window.location.href = "index.html";
+  }
+});
 </script>
 
 </body>
