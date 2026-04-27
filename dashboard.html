@@ -4,15 +4,16 @@
 <meta charset="UTF-8">
 <title>Euconomizo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:linear-gradient(135deg,#101827,#172033,#0f5132);
-  color:#fff;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,#0f172a,#172554,#14532d);
+  color:white;
 }
 
 .topo{
@@ -22,18 +23,27 @@ body{
 
 .topo h1{
   margin:0;
-  font-size:32px;
+  font-size:34px;
 }
 
 .topo p{
-  margin:8px 0 0;
   color:#d1fae5;
 }
 
 .container{
-  padding:16px;
-  max-width:900px;
+  max-width:1000px;
   margin:auto;
+  padding:16px;
+}
+
+.card{
+  background:rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.18);
+  backdrop-filter:blur(16px);
+  border-radius:24px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 12px 35px rgba(0,0,0,.28);
 }
 
 .grid{
@@ -42,52 +52,40 @@ body{
   gap:14px;
 }
 
-.card{
-  background:rgba(255,255,255,0.12);
-  backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,0.18);
-  border-radius:22px;
-  padding:18px;
-  margin-bottom:16px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.25);
-}
-
-.card h3{
-  margin-top:0;
+@media(min-width:750px){
+  .grid{grid-template-columns:repeat(3,1fr)}
 }
 
 .valor{
   font-size:28px;
   font-weight:bold;
-  margin-top:6px;
+  margin-top:8px;
 }
 
 .verde{color:#4ade80}
 .vermelho{color:#fb7185}
 .azul{color:#60a5fa}
 .roxo{color:#c084fc}
+.amarelo{color:#facc15}
 
 input,select,textarea{
   width:100%;
   padding:14px;
-  margin-top:8px;
-  margin-bottom:12px;
-  border-radius:14px;
   border:none;
-  background:#f8fafc;
-  color:#111827;
+  border-radius:15px;
+  margin:7px 0 13px;
   font-size:16px;
 }
 
 textarea{
-  min-height:75px;
+  min-height:70px;
   resize:none;
 }
 
 label{
-  font-size:14px;
-  color:#e5e7eb;
   font-weight:bold;
+  color:#e5e7eb;
+  font-size:14px;
 }
 
 button{
@@ -95,29 +93,21 @@ button{
   padding:14px;
   border:none;
   border-radius:16px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);
   color:white;
   font-size:16px;
   font-weight:bold;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
   margin-top:8px;
-  cursor:pointer;
 }
 
-button.editar{
-  background:linear-gradient(135deg,#3b82f6,#2563eb);
-}
-
-button.excluir{
-  background:linear-gradient(135deg,#ef4444,#b91c1c);
-}
-
-button.cinza{
-  background:#334155;
-}
+button.azulbtn{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+button.roxobtn{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+button.vermelhobtn{background:linear-gradient(135deg,#ef4444,#b91c1c)}
+button.cinzabtn{background:#334155}
 
 .lancamento{
-  background:rgba(255,255,255,0.10);
-  border:1px solid rgba(255,255,255,0.12);
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.13);
   border-radius:18px;
   padding:14px;
   margin-bottom:12px;
@@ -127,32 +117,22 @@ button.cinza{
   display:flex;
   justify-content:space-between;
   gap:12px;
-  align-items:flex-start;
 }
 
 .tag{
   display:inline-block;
-  padding:5px 10px;
+  background:rgba(255,255,255,.18);
   border-radius:999px;
+  padding:5px 10px;
   font-size:12px;
-  background:rgba(255,255,255,0.18);
-  margin-top:8px;
+  margin-top:6px;
 }
 
 .pequeno{
-  font-size:13px;
   color:#d1d5db;
-  margin-top:8px;
+  font-size:13px;
   line-height:1.5;
-}
-
-.alerta{
-  background:rgba(250,204,21,0.18);
-  border-left:5px solid #facc15;
-  padding:12px;
-  border-radius:14px;
-  color:#fff;
-  margin-bottom:10px;
+  margin-top:8px;
 }
 
 .acoes{
@@ -162,11 +142,15 @@ button.cinza{
   margin-top:10px;
 }
 
-@media(min-width:700px){
-  .grid{
-    grid-template-columns:repeat(3,1fr);
-  }
+.alerta{
+  background:rgba(250,204,21,.18);
+  border-left:5px solid #facc15;
+  padding:12px;
+  border-radius:14px;
+  margin-bottom:10px;
 }
+
+.oculto{display:none}
 </style>
 </head>
 
@@ -179,68 +163,154 @@ button.cinza{
 
 <div class="container">
 
-  <div class="grid">
-    <div class="card">
-      <div>Entrou</div>
-      <div class="valor verde">R$ <span id="totalGanhos">0,00</span></div>
-    </div>
+  <div class="card" id="cardCasal">
+    <h3>Configurar casal</h3>
 
-    <div class="card">
-      <div>Saiu</div>
-      <div class="valor vermelho">R$ <span id="totalGastos">0,00</span></div>
-    </div>
+    <label>Seu nome</label>
+    <input id="perfilNome" placeholder="Ex: Adriano">
 
-    <div class="card">
-      <div>Sobrou</div>
-      <div class="valor azul">R$ <span id="saldoFinal">0,00</span></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3>Novo lançamento</h3>
-
-    <input type="hidden" id="editandoId">
-
-    <label>Tipo</label>
-    <select id="tipo" onchange="atualizarCategorias()">
-      <option value="ganho">Ganho</option>
-      <option value="gasto">Gasto</option>
+    <label>Você é</label>
+    <select id="perfilPapel">
+      <option value="Marido">Marido</option>
+      <option value="Esposa">Esposa</option>
     </select>
 
-    <label>Nome</label>
-    <input id="nome" placeholder="Ex: Salário, Mercado, Aluguel">
+    <label>Sua cor</label>
+    <select id="perfilCor">
+      <option value="azul">Azul</option>
+      <option value="roxo">Roxo</option>
+      <option value="verde">Verde</option>
+      <option value="rosa">Rosa</option>
+    </select>
 
-    <label>Valor</label>
-    <input id="valor" type="number" step="0.01" placeholder="Ex: 120.50">
+    <button onclick="criarCasal()">Criar casal</button>
 
-    <label>Categoria</label>
-    <select id="categoria"></select>
+    <hr style="border-color:rgba(255,255,255,.2);margin:20px 0;">
 
-    <label>Data</label>
-    <input id="data" type="date">
+    <label>Ou entre com o código do casal</label>
+    <input id="codigoCasal" placeholder="Ex: EUCO-1234">
 
-    <label>Observação</label>
-    <textarea id="observacao" placeholder="Ex: compra da semana, conta de luz, renda extra..."></textarea>
-
-    <button onclick="salvarLancamento()" id="btnSalvar">Salvar lançamento</button>
-    <button class="cinza" onclick="limparFormulario()">Limpar</button>
+    <button class="roxobtn" onclick="entrarNoCasal()">Entrar no casal</button>
   </div>
 
-  <div class="card">
-    <h3>Resumo inteligente</h3>
-    <div id="alertas"></div>
-  </div>
+  <div id="appArea" class="oculto">
 
-  <div class="card">
-    <h3>Resumo por categoria</h3>
-    <div id="resumoCategorias"></div>
-  </div>
+    <div class="grid">
+      <div class="card">
+        <div>Entrou</div>
+        <div class="valor verde">R$ <span id="totalGanhos">0,00</span></div>
+      </div>
 
-  <div class="card">
-    <h3>Histórico</h3>
-    <div id="historico">Carregando...</div>
-  </div>
+      <div class="card">
+        <div>Saiu</div>
+        <div class="valor vermelho">R$ <span id="totalGastos">0,00</span></div>
+      </div>
 
+      <div class="card">
+        <div>Sobrou</div>
+        <div class="valor azul">R$ <span id="saldoFinal">0,00</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Novo lançamento</h3>
+
+      <input type="hidden" id="editandoId">
+
+      <label>Tipo</label>
+      <select id="tipo" onchange="atualizarCategorias()">
+        <option value="ganho">Ganho</option>
+        <option value="gasto">Gasto</option>
+      </select>
+
+      <label>Nome</label>
+      <input id="nome" placeholder="Ex: Salário, Mercado, Aluguel">
+
+      <label>Valor</label>
+      <input id="valor" type="number" step="0.01" placeholder="Ex: 120.50">
+
+      <label>Categoria</label>
+      <select id="categoria"></select>
+
+      <label>Data</label>
+      <input id="data" type="date">
+
+      <label>Observação</label>
+      <textarea id="observacao" placeholder="Ex: compra da semana, conta de luz, renda extra..."></textarea>
+
+      <button onclick="salvarLancamento()" id="btnSalvar">Salvar lançamento</button>
+      <button class="cinzabtn" onclick="limparFormulario()">Limpar</button>
+    </div>
+
+    <div class="card">
+      <h3>Gasto fixo do casal</h3>
+
+      <label>Nome</label>
+      <input id="fixoNome" placeholder="Ex: Aluguel, Internet, Luz">
+
+      <label>Valor</label>
+      <input id="fixoValor" type="number" step="0.01">
+
+      <label>Categoria</label>
+      <select id="fixoCategoria"></select>
+
+      <label>Dia de vencimento</label>
+      <input id="fixoDia" type="number" min="1" max="31" placeholder="Ex: 10">
+
+      <button onclick="salvarFixo()">Salvar gasto fixo</button>
+
+      <h4>Gastos fixos cadastrados</h4>
+      <div id="listaFixos"></div>
+    </div>
+
+    <div class="card">
+      <h3>Compra parcelada</h3>
+
+      <label>Nome da compra</label>
+      <input id="parcelaNome" placeholder="Ex: Geladeira, Celular, Curso">
+
+      <label>Valor da parcela</label>
+      <input id="parcelaValor" type="number" step="0.01">
+
+      <label>Total de parcelas</label>
+      <input id="parcelaTotal" type="number" min="1">
+
+      <label>Parcelas já pagas</label>
+      <input id="parcelaPagas" type="number" min="0" value="0">
+
+      <label>Categoria</label>
+      <select id="parcelaCategoria"></select>
+
+      <label>Próximo pagamento</label>
+      <input id="parcelaData" type="date">
+
+      <button onclick="salvarParcelado()">Salvar compra parcelada</button>
+
+      <h4>Compras parceladas</h4>
+      <div id="listaParcelados"></div>
+    </div>
+
+    <div class="card">
+      <h3>Gráfico de gastos por categoria</h3>
+      <canvas id="graficoCategorias"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Resumo inteligente</h3>
+      <div id="alertas"></div>
+    </div>
+
+    <div class="card">
+      <h3>Resumo por categoria</h3>
+      <div id="resumoCategorias"></div>
+    </div>
+
+    <div class="card">
+      <h3>Histórico</h3>
+      <div id="historico">Carregando...</div>
+    </div>
+
+  </div>
 </div>
 
 <script type="module">
@@ -259,8 +329,10 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  setDoc,
+  getDoc,
   query,
-  orderBy,
+  where,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
@@ -278,36 +350,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let usuarioAtual = null;
-
-let perfil = JSON.parse(localStorage.getItem("perfilEuconomizo"));
-
-if (!perfil) {
-  const nome = prompt("Qual seu nome?");
-  const papel = prompt("Você é marido ou esposa?");
-  const cor = prompt("Escolha sua cor: azul, roxo, verde ou rosa");
-
-  perfil = {
-    nome: nome || "Usuário",
-    papel: papel || "casal",
-    cor: cor || "verde"
-  };
-
-  localStorage.setItem("perfilEuconomizo", JSON.stringify(perfil));
-}
-
-const cores = {
-  azul:"#60a5fa",
-  roxo:"#c084fc",
-  verde:"#4ade80",
-  rosa:"#f472b6",
-  blue:"#60a5fa",
-  purple:"#c084fc",
-  green:"#4ade80",
-  pink:"#f472b6"
-};
-
-document.getElementById("perfilTexto").innerHTML =
-  `Logado como <strong style="color:${cores[perfil.cor] || perfil.cor}">${perfil.nome}</strong> (${perfil.papel})`;
+let perfil = null;
+let grafico = null;
 
 const categoriasGanhos = [
   "Salário",
@@ -331,8 +375,16 @@ const categoriasGastos = [
   "Igreja/doações",
   "Dívidas",
   "Cartão de crédito",
+  "Parcelado",
   "Outros"
 ];
+
+const cores = {
+  azul:"#60a5fa",
+  roxo:"#c084fc",
+  verde:"#4ade80",
+  rosa:"#f472b6"
+};
 
 function moeda(valor){
   return Number(valor || 0).toLocaleString("pt-BR", {
@@ -345,19 +397,123 @@ function hoje(){
   return new Date().toISOString().split("T")[0];
 }
 
+function gerarCodigo(){
+  return "EUCO-" + Math.floor(1000 + Math.random() * 9000);
+}
+
+function preencherSelect(selectId, lista){
+  const select = document.getElementById(selectId);
+  select.innerHTML = "";
+
+  lista.forEach(item => {
+    const op = document.createElement("option");
+    op.value = item;
+    op.textContent = item;
+    select.appendChild(op);
+  });
+}
+
+function mostrarApp(){
+  document.getElementById("cardCasal").classList.add("oculto");
+  document.getElementById("appArea").classList.remove("oculto");
+
+  document.getElementById("perfilTexto").innerHTML =
+    `Casal: <strong>${perfil.codigoCasal}</strong> • <span style="color:${cores[perfil.cor]}">${perfil.nome}</span> (${perfil.papel})`;
+
+  atualizarCategorias();
+  preencherSelect("fixoCategoria", categoriasGastos);
+  preencherSelect("parcelaCategoria", categoriasGastos);
+
+  document.getElementById("data").value = hoje();
+  document.getElementById("parcelaData").value = hoje();
+
+  carregarTudo();
+}
+
+async function salvarPerfil(){
+  await setDoc(doc(db, "usuarios", usuarioAtual.uid), perfil, { merge:true });
+  localStorage.setItem("perfilEuconomizo", JSON.stringify(perfil));
+}
+
+window.criarCasal = async function(){
+  const nome = document.getElementById("perfilNome").value.trim();
+  const papel = document.getElementById("perfilPapel").value;
+  const cor = document.getElementById("perfilCor").value;
+
+  if(!nome){
+    alert("Digite seu nome.");
+    return;
+  }
+
+  const codigo = gerarCodigo();
+
+  const casalRef = await addDoc(collection(db, "casais"), {
+    codigo,
+    criadoPor: usuarioAtual.uid,
+    criadoEm: serverTimestamp()
+  });
+
+  perfil = {
+    uid: usuarioAtual.uid,
+    email: usuarioAtual.email,
+    nome,
+    papel,
+    cor,
+    casalId: casalRef.id,
+    codigoCasal: codigo
+  };
+
+  await salvarPerfil();
+
+  alert("Casal criado! Código: " + codigo + "\nSua esposa deve usar esse código para entrar.");
+  mostrarApp();
+};
+
+window.entrarNoCasal = async function(){
+  const nome = document.getElementById("perfilNome").value.trim();
+  const papel = document.getElementById("perfilPapel").value;
+  const cor = document.getElementById("perfilCor").value;
+  const codigo = document.getElementById("codigoCasal").value.trim().toUpperCase();
+
+  if(!nome){
+    alert("Digite seu nome.");
+    return;
+  }
+
+  if(!codigo){
+    alert("Digite o código do casal.");
+    return;
+  }
+
+  const q = query(collection(db, "casais"), where("codigo", "==", codigo));
+  const snap = await getDocs(q);
+
+  if(snap.empty){
+    alert("Código não encontrado.");
+    return;
+  }
+
+  const casalDoc = snap.docs[0];
+
+  perfil = {
+    uid: usuarioAtual.uid,
+    email: usuarioAtual.email,
+    nome,
+    papel,
+    cor,
+    casalId: casalDoc.id,
+    codigoCasal: codigo
+  };
+
+  await salvarPerfil();
+
+  alert("Você entrou no casal!");
+  mostrarApp();
+};
+
 window.atualizarCategorias = function(){
   const tipo = document.getElementById("tipo").value;
-  const categoria = document.getElementById("categoria");
-  const lista = tipo === "ganho" ? categoriasGanhos : categoriasGastos;
-
-  categoria.innerHTML = "";
-
-  lista.forEach(cat => {
-    const op = document.createElement("option");
-    op.value = cat;
-    op.textContent = cat;
-    categoria.appendChild(op);
-  });
+  preencherSelect("categoria", tipo === "ganho" ? categoriasGanhos : categoriasGastos);
 };
 
 window.limparFormulario = function(){
@@ -380,28 +536,12 @@ window.salvarLancamento = async function(){
   const data = document.getElementById("data").value;
   const observacao = document.getElementById("observacao").value.trim();
 
-  if(!usuarioAtual){
-    alert("Faça login novamente.");
-    window.location.href = "index.html";
-    return;
-  }
-
-  if(!nome){
-    alert("Digite o nome do lançamento.");
-    return;
-  }
-
-  if(!valor || valor <= 0){
-    alert("Digite um valor válido.");
-    return;
-  }
-
-  if(!data){
-    alert("Escolha uma data.");
-    return;
-  }
+  if(!nome) return alert("Digite o nome.");
+  if(!valor || valor <= 0) return alert("Digite um valor válido.");
+  if(!data) return alert("Escolha a data.");
 
   const dados = {
+    casalId: perfil.casalId,
     tipo,
     nome,
     valor,
@@ -419,18 +559,18 @@ window.salvarLancamento = async function(){
   if(id){
     await updateDoc(doc(db, "lancamentos", id), dados);
     alert("Lançamento atualizado!");
-  } else {
+  }else{
     dados.criadoEm = serverTimestamp();
     await addDoc(collection(db, "lancamentos"), dados);
     alert("Lançamento salvo!");
   }
 
   limparFormulario();
-  carregarLancamentos();
+  carregarTudo();
 };
 
-window.editarLancamento = function(id, itemTexto){
-  const item = JSON.parse(decodeURIComponent(itemTexto));
+window.editarLancamento = function(id, texto){
+  const item = JSON.parse(decodeURIComponent(texto));
 
   document.getElementById("editandoId").value = id;
   document.getElementById("tipo").value = item.tipo;
@@ -443,15 +583,153 @@ window.editarLancamento = function(id, itemTexto){
   document.getElementById("observacao").value = item.observacao || "";
   document.getElementById("btnSalvar").innerText = "Salvar alteração";
 
-  window.scrollTo({top:260, behavior:"smooth"});
+  window.scrollTo({top:230,behavior:"smooth"});
 };
 
 window.excluirLancamento = async function(id){
-  if(confirm("Deseja excluir este lançamento?")){
+  if(confirm("Excluir este lançamento?")){
     await deleteDoc(doc(db, "lancamentos", id));
-    carregarLancamentos();
+    carregarTudo();
   }
 };
+
+window.salvarFixo = async function(){
+  const nome = document.getElementById("fixoNome").value.trim();
+  const valor = parseFloat(document.getElementById("fixoValor").value);
+  const categoria = document.getElementById("fixoCategoria").value;
+  const dia = parseInt(document.getElementById("fixoDia").value);
+
+  if(!nome) return alert("Digite o nome do gasto fixo.");
+  if(!valor || valor <= 0) return alert("Digite o valor.");
+  if(!dia || dia < 1 || dia > 31) return alert("Digite o dia de vencimento.");
+
+  await addDoc(collection(db, "gastosFixos"), {
+    casalId: perfil.casalId,
+    nome,
+    valor,
+    categoria,
+    dia,
+    ativo:true,
+    criadoPor: perfil.nome,
+    criadoEm: serverTimestamp()
+  });
+
+  document.getElementById("fixoNome").value = "";
+  document.getElementById("fixoValor").value = "";
+  document.getElementById("fixoDia").value = "";
+
+  carregarTudo();
+};
+
+window.lancarFixo = async function(nome, valor, categoria){
+  await addDoc(collection(db, "lancamentos"), {
+    casalId: perfil.casalId,
+    tipo:"gasto",
+    nome,
+    valor:Number(valor),
+    categoria,
+    data:hoje(),
+    observacao:"Lançado a partir de gasto fixo",
+    usuarioId:usuarioAtual.uid,
+    usuarioEmail:usuarioAtual.email,
+    usuarioNome:perfil.nome,
+    usuarioPapel:perfil.papel,
+    usuarioCor:perfil.cor,
+    criadoEm:serverTimestamp()
+  });
+
+  alert("Gasto fixo lançado no mês.");
+  carregarTudo();
+};
+
+window.excluirFixo = async function(id){
+  if(confirm("Excluir este gasto fixo?")){
+    await deleteDoc(doc(db, "gastosFixos", id));
+    carregarTudo();
+  }
+};
+
+window.salvarParcelado = async function(){
+  const nome = document.getElementById("parcelaNome").value.trim();
+  const valor = parseFloat(document.getElementById("parcelaValor").value);
+  const total = parseInt(document.getElementById("parcelaTotal").value);
+  const pagas = parseInt(document.getElementById("parcelaPagas").value || 0);
+  const categoria = document.getElementById("parcelaCategoria").value;
+  const data = document.getElementById("parcelaData").value;
+
+  if(!nome) return alert("Digite o nome da compra.");
+  if(!valor || valor <= 0) return alert("Digite o valor da parcela.");
+  if(!total || total <= 0) return alert("Digite o total de parcelas.");
+  if(pagas > total) return alert("Parcelas pagas não pode ser maior que o total.");
+  if(!data) return alert("Escolha a data do próximo pagamento.");
+
+  await addDoc(collection(db, "parcelados"), {
+    casalId:perfil.casalId,
+    nome,
+    valorParcela:valor,
+    parcelasTotal:total,
+    parcelasPagas:pagas,
+    categoria,
+    proximoPagamento:data,
+    criadoPor:perfil.nome,
+    criadoEm:serverTimestamp()
+  });
+
+  document.getElementById("parcelaNome").value = "";
+  document.getElementById("parcelaValor").value = "";
+  document.getElementById("parcelaTotal").value = "";
+  document.getElementById("parcelaPagas").value = 0;
+  document.getElementById("parcelaData").value = hoje();
+
+  carregarTudo();
+};
+
+window.pagarParcela = async function(id, texto){
+  const item = JSON.parse(decodeURIComponent(texto));
+
+  if(item.parcelasPagas >= item.parcelasTotal){
+    alert("Essa compra já foi quitada.");
+    return;
+  }
+
+  const novaParcela = item.parcelasPagas + 1;
+
+  await updateDoc(doc(db, "parcelados", id), {
+    parcelasPagas:novaParcela
+  });
+
+  await addDoc(collection(db, "lancamentos"), {
+    casalId:perfil.casalId,
+    tipo:"gasto",
+    nome:`${item.nome} - parcela ${novaParcela}/${item.parcelasTotal}`,
+    valor:Number(item.valorParcela),
+    categoria:item.categoria,
+    data:hoje(),
+    observacao:"Parcela paga",
+    usuarioId:usuarioAtual.uid,
+    usuarioEmail:usuarioAtual.email,
+    usuarioNome:perfil.nome,
+    usuarioPapel:perfil.papel,
+    usuarioCor:perfil.cor,
+    criadoEm:serverTimestamp()
+  });
+
+  alert("Parcela registrada como paga.");
+  carregarTudo();
+};
+
+window.excluirParcelado = async function(id){
+  if(confirm("Excluir esta compra parcelada?")){
+    await deleteDoc(doc(db, "parcelados", id));
+    carregarTudo();
+  }
+};
+
+async function carregarTudo(){
+  await carregarLancamentos();
+  await carregarFixos();
+  await carregarParcelados();
+}
 
 async function carregarLancamentos(){
   const historico = document.getElementById("historico");
@@ -465,42 +743,47 @@ async function carregarLancamentos(){
   let totalGanhos = 0;
   let totalGastos = 0;
   let categorias = {};
+  let gastosGrafico = {};
   let totalLazer = 0;
   let totalAlimentacao = 0;
 
-  const q = query(collection(db, "lancamentos"), orderBy("data", "desc"));
+  const q = query(collection(db, "lancamentos"), where("casalId", "==", perfil.casalId));
   const snap = await getDocs(q);
+
+  let itens = [];
+  snap.forEach(d => itens.push({ id:d.id, ...d.data() }));
+
+  itens.sort((a,b) => String(b.data).localeCompare(String(a.data)));
 
   historico.innerHTML = "";
 
-  if(snap.empty){
+  if(itens.length === 0){
     historico.innerHTML = "Nenhum lançamento ainda.";
   }
 
-  snap.forEach(documento => {
-    const item = documento.data();
-
-    if(item.tipo === "ganho"){
-      totalGanhos += Number(item.valor);
-    } else {
-      totalGastos += Number(item.valor);
-    }
+  itens.forEach(item => {
+    if(item.tipo === "ganho") totalGanhos += Number(item.valor);
+    if(item.tipo === "gasto") totalGastos += Number(item.valor);
 
     categorias[item.categoria] = (categorias[item.categoria] || 0) + Number(item.valor);
+
+    if(item.tipo === "gasto"){
+      gastosGrafico[item.categoria] = (gastosGrafico[item.categoria] || 0) + Number(item.valor);
+    }
 
     if(item.categoria === "Lazer") totalLazer += Number(item.valor);
     if(item.categoria === "Alimentação") totalAlimentacao += Number(item.valor);
 
-    const corPessoa = cores[item.usuarioCor] || item.usuarioCor || "#4ade80";
-    const classeValor = item.tipo === "ganho" ? "verde" : "vermelho";
+    const corPessoa = cores[item.usuarioCor] || "#4ade80";
+    const classe = item.tipo === "ganho" ? "verde" : "vermelho";
     const sinal = item.tipo === "ganho" ? "+" : "-";
 
-    const itemSeguro = encodeURIComponent(JSON.stringify({
-      tipo:item.tipo || "",
-      nome:item.nome || "",
-      valor:item.valor || 0,
-      categoria:item.categoria || "",
-      data:item.data || "",
+    const seguro = encodeURIComponent(JSON.stringify({
+      tipo:item.tipo,
+      nome:item.nome,
+      valor:item.valor,
+      categoria:item.categoria,
+      data:item.data,
       observacao:item.observacao || ""
     }));
 
@@ -511,37 +794,32 @@ async function carregarLancamentos(){
             <strong>${item.nome}</strong><br>
             <span class="tag">${item.categoria}</span>
           </div>
-
-          <div class="${classeValor}">
+          <div class="${classe}">
             <strong>${sinal} R$ ${moeda(item.valor)}</strong>
           </div>
         </div>
 
         <div class="pequeno">
           Data: ${item.data || "sem data"}<br>
-          Por: <span style="color:${corPessoa}; font-weight:bold;">
-            ${item.usuarioNome || "Usuário"} (${item.usuarioPapel || "perfil"})
-          </span><br>
+          Por: <span style="color:${corPessoa};font-weight:bold">${item.usuarioNome || "Usuário"} (${item.usuarioPapel || ""})</span><br>
           ${item.observacao ? "Obs: " + item.observacao : ""}
         </div>
 
         <div class="acoes">
-          <button class="editar" onclick="editarLancamento('${documento.id}','${itemSeguro}')">Editar</button>
-          <button class="excluir" onclick="excluirLancamento('${documento.id}')">Excluir</button>
+          <button class="azulbtn" onclick="editarLancamento('${item.id}','${seguro}')">Editar</button>
+          <button class="vermelhobtn" onclick="excluirLancamento('${item.id}')">Excluir</button>
         </div>
       </div>
     `;
   });
 
-  const saldo = totalGanhos - totalGastos;
-
   document.getElementById("totalGanhos").textContent = moeda(totalGanhos);
   document.getElementById("totalGastos").textContent = moeda(totalGastos);
-  document.getElementById("saldoFinal").textContent = moeda(saldo);
+  document.getElementById("saldoFinal").textContent = moeda(totalGanhos - totalGastos);
 
   Object.keys(categorias).forEach(cat => {
     resumoCategorias.innerHTML += `
-      <div class="linha" style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.12)">
+      <div class="linha" style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.13)">
         <span>${cat}</span>
         <strong>R$ ${moeda(categorias[cat])}</strong>
       </div>
@@ -549,34 +827,158 @@ async function carregarLancamentos(){
   });
 
   if(!resumoCategorias.innerHTML){
-    resumoCategorias.innerHTML = "Ainda não há categorias registradas.";
+    resumoCategorias.innerHTML = "Ainda não há categorias.";
   }
 
-  if(saldo < 0){
+  if(totalGanhos - totalGastos < 0){
     alertas.innerHTML += `<div class="alerta">Atenção: os gastos estão maiores que os ganhos.</div>`;
   }
 
-  if(totalGanhos > 0 && totalLazer > totalGanhos * 0.25){
-    alertas.innerHTML += `<div class="alerta">O gasto com lazer está alto. Talvez reduzir um pouco ajude nas metas do casal.</div>`;
+  if(totalGanhos > 0 && totalLazer > totalGanhos * .25){
+    alertas.innerHTML += `<div class="alerta">O gasto com lazer está alto. Talvez reduzir um pouco ajude nas metas.</div>`;
   }
 
-  if(totalGanhos > 0 && totalAlimentacao > totalGanhos * 0.35){
-    alertas.innerHTML += `<div class="alerta">Alimentação está consumindo boa parte da renda. Vale observar mercado, delivery e lanches.</div>`;
+  if(totalGanhos > 0 && totalAlimentacao > totalGanhos * .35){
+    alertas.innerHTML += `<div class="alerta">Alimentação está consumindo boa parte da renda. Vale observar mercado e delivery.</div>`;
   }
 
   if(!alertas.innerHTML){
-    alertas.innerHTML = `<div class="alerta">Tudo certo por enquanto. Continuem registrando para o app entender melhor o padrão de vocês.</div>`;
+    alertas.innerHTML = `<div class="alerta">Tudo certo por enquanto. Continuem registrando para acompanhar melhor.</div>`;
   }
+
+  montarGrafico(gastosGrafico);
 }
 
-onAuthStateChanged(auth, user => {
-  if(user){
-    usuarioAtual = user;
-    document.getElementById("data").value = hoje();
-    atualizarCategorias();
-    carregarLancamentos();
-  } else {
+async function carregarFixos(){
+  const lista = document.getElementById("listaFixos");
+  lista.innerHTML = "Carregando...";
+
+  const q = query(collection(db, "gastosFixos"), where("casalId", "==", perfil.casalId));
+  const snap = await getDocs(q);
+
+  lista.innerHTML = "";
+
+  if(snap.empty){
+    lista.innerHTML = "Nenhum gasto fixo cadastrado.";
+    return;
+  }
+
+  snap.forEach(d => {
+    const item = d.data();
+
+    lista.innerHTML += `
+      <div class="lancamento">
+        <strong>${item.nome}</strong><br>
+        <span class="tag">${item.categoria}</span>
+        <div class="pequeno">
+          Valor: R$ ${moeda(item.valor)}<br>
+          Vence dia: ${item.dia}
+        </div>
+        <button onclick="lancarFixo('${item.nome}',${item.valor},'${item.categoria}')">Lançar este mês</button>
+        <button class="vermelhobtn" onclick="excluirFixo('${d.id}')">Excluir fixo</button>
+      </div>
+    `;
+  });
+}
+
+async function carregarParcelados(){
+  const lista = document.getElementById("listaParcelados");
+  lista.innerHTML = "Carregando...";
+
+  const q = query(collection(db, "parcelados"), where("casalId", "==", perfil.casalId));
+  const snap = await getDocs(q);
+
+  lista.innerHTML = "";
+
+  if(snap.empty){
+    lista.innerHTML = "Nenhuma compra parcelada cadastrada.";
+    return;
+  }
+
+  snap.forEach(d => {
+    const item = d.data();
+    const faltam = item.parcelasTotal - item.parcelasPagas;
+
+    const seguro = encodeURIComponent(JSON.stringify({
+      nome:item.nome,
+      valorParcela:item.valorParcela,
+      parcelasTotal:item.parcelasTotal,
+      parcelasPagas:item.parcelasPagas,
+      categoria:item.categoria
+    }));
+
+    lista.innerHTML += `
+      <div class="lancamento">
+        <strong>${item.nome}</strong><br>
+        <span class="tag">${item.categoria}</span>
+        <div class="pequeno">
+          Parcela: R$ ${moeda(item.valorParcela)}<br>
+          Pagas: ${item.parcelasPagas}/${item.parcelasTotal}<br>
+          Faltam: ${faltam}<br>
+          Próximo pagamento: ${item.proximoPagamento || "não informado"}
+        </div>
+
+        <button class="roxobtn" onclick="pagarParcela('${d.id}','${seguro}')">Registrar próxima parcela paga</button>
+        <button class="vermelhobtn" onclick="excluirParcelado('${d.id}')">Excluir parcelado</button>
+      </div>
+    `;
+  });
+}
+
+function montarGrafico(dados){
+  const ctx = document.getElementById("graficoCategorias");
+
+  const labels = Object.keys(dados);
+  const valores = Object.values(dados);
+
+  if(grafico){
+    grafico.destroy();
+  }
+
+  grafico = new Chart(ctx, {
+    type:"doughnut",
+    data:{
+      labels,
+      datasets:[{
+        data:valores
+      }]
+    },
+    options:{
+      plugins:{
+        legend:{
+          labels:{
+            color:"#fff"
+          }
+        }
+      }
+    }
+  });
+}
+
+onAuthStateChanged(auth, async user => {
+  if(!user){
     window.location.href = "index.html";
+    return;
+  }
+
+  usuarioAtual = user;
+
+  const userDoc = await getDoc(doc(db, "usuarios", user.uid));
+  const local = JSON.parse(localStorage.getItem("perfilEuconomizo"));
+
+  if(userDoc.exists()){
+    perfil = userDoc.data();
+  } else if(local && local.casalId){
+    perfil = local;
+    await salvarPerfil();
+  }
+
+  if(perfil && perfil.casalId){
+    mostrarApp();
+  } else {
+    document.getElementById("perfilNome").value = local?.nome || "";
+    document.getElementById("perfilPapel").value = local?.papel || "Marido";
+    document.getElementById("perfilCor").value = local?.cor || "azul";
   }
 });
 </script>
