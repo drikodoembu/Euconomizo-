@@ -6,45 +6,166 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body { margin:0; font-family:Arial; background:#f5f5f5; }
+*{box-sizing:border-box}
 
-.topo {
-  background:#2E7D32;
-  color:white;
-  padding:20px;
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:linear-gradient(135deg,#101827,#172033,#0f5132);
+  color:#fff;
+}
+
+.topo{
+  padding:28px 18px;
   text-align:center;
 }
 
-.container { padding:15px; }
+.topo h1{
+  margin:0;
+  font-size:32px;
+}
 
-.card {
-  background:white;
-  padding:15px;
-  border-radius:10px;
+.topo p{
+  margin:8px 0 0;
+  color:#d1fae5;
+}
+
+.container{
+  padding:16px;
+  max-width:900px;
+  margin:auto;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:14px;
+}
+
+.card{
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(14px);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:22px;
+  padding:18px;
+  margin-bottom:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.25);
+}
+
+.card h3{
+  margin-top:0;
+}
+
+.valor{
+  font-size:28px;
+  font-weight:bold;
+  margin-top:6px;
+}
+
+.verde{color:#4ade80}
+.vermelho{color:#fb7185}
+.azul{color:#60a5fa}
+.roxo{color:#c084fc}
+
+input,select,textarea{
+  width:100%;
+  padding:14px;
+  margin-top:8px;
+  margin-bottom:12px;
+  border-radius:14px;
+  border:none;
+  background:#f8fafc;
+  color:#111827;
+  font-size:16px;
+}
+
+textarea{
+  min-height:75px;
+  resize:none;
+}
+
+label{
+  font-size:14px;
+  color:#e5e7eb;
+  font-weight:bold;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  margin-top:8px;
+  cursor:pointer;
+}
+
+button.editar{
+  background:linear-gradient(135deg,#3b82f6,#2563eb);
+}
+
+button.excluir{
+  background:linear-gradient(135deg,#ef4444,#b91c1c);
+}
+
+button.cinza{
+  background:#334155;
+}
+
+.lancamento{
+  background:rgba(255,255,255,0.10);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:18px;
+  padding:14px;
+  margin-bottom:12px;
+}
+
+.linha{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:flex-start;
+}
+
+.tag{
+  display:inline-block;
+  padding:5px 10px;
+  border-radius:999px;
+  font-size:12px;
+  background:rgba(255,255,255,0.18);
+  margin-top:8px;
+}
+
+.pequeno{
+  font-size:13px;
+  color:#d1d5db;
+  margin-top:8px;
+  line-height:1.5;
+}
+
+.alerta{
+  background:rgba(250,204,21,0.18);
+  border-left:5px solid #facc15;
+  padding:12px;
+  border-radius:14px;
+  color:#fff;
   margin-bottom:10px;
 }
 
-button {
-  width:100%;
-  padding:12px;
+.acoes{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
   margin-top:10px;
-  border:none;
-  border-radius:10px;
-  background:#4CAF50;
-  color:white;
 }
 
-input, select {
-  width:100%;
-  padding:10px;
-  margin-top:8px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-.item {
-  border-bottom:1px solid #eee;
-  padding:10px 0;
+@media(min-width:700px){
+  .grid{
+    grid-template-columns:repeat(3,1fr);
+  }
 }
 </style>
 </head>
@@ -52,50 +173,82 @@ input, select {
 <body>
 
 <div class="topo">
-  <h2>Euconomizo</h2>
-  <p id="userInfo"></p>
+  <h1>Euconomizo</h1>
+  <p id="perfilTexto">Controle financeiro do casal</p>
 </div>
 
 <div class="container">
 
-<div class="card">
-Saldo: R$ <b id="saldo">0</b><br>
-Ganhos: R$ <b id="ganhos">0</b><br>
-Gastos: R$ <b id="gastos">0</b>
-</div>
+  <div class="grid">
+    <div class="card">
+      <div>Entrou</div>
+      <div class="valor verde">R$ <span id="totalGanhos">0,00</span></div>
+    </div>
 
-<div class="card">
-<h3>Novo lançamento</h3>
+    <div class="card">
+      <div>Saiu</div>
+      <div class="valor vermelho">R$ <span id="totalGastos">0,00</span></div>
+    </div>
 
-<select id="tipo">
-  <option value="ganho">Ganho</option>
-  <option value="gasto">Gasto</option>
-</select>
+    <div class="card">
+      <div>Sobrou</div>
+      <div class="valor azul">R$ <span id="saldoFinal">0,00</span></div>
+    </div>
+  </div>
 
-<input id="nome" placeholder="Nome">
-<input id="valor" type="number" placeholder="Valor">
+  <div class="card">
+    <h3>Novo lançamento</h3>
 
-<select id="categoria"></select>
+    <input type="hidden" id="editandoId">
 
-<input id="data" type="date">
+    <label>Tipo</label>
+    <select id="tipo" onchange="atualizarCategorias()">
+      <option value="ganho">Ganho</option>
+      <option value="gasto">Gasto</option>
+    </select>
 
-<button onclick="salvar()">Salvar</button>
-</div>
+    <label>Nome</label>
+    <input id="nome" placeholder="Ex: Salário, Mercado, Aluguel">
 
-<div class="card">
-<h3>Histórico</h3>
-<div id="lista"></div>
-</div>
+    <label>Valor</label>
+    <input id="valor" type="number" step="0.01" placeholder="Ex: 120.50">
+
+    <label>Categoria</label>
+    <select id="categoria"></select>
+
+    <label>Data</label>
+    <input id="data" type="date">
+
+    <label>Observação</label>
+    <textarea id="observacao" placeholder="Ex: compra da semana, conta de luz, renda extra..."></textarea>
+
+    <button onclick="salvarLancamento()" id="btnSalvar">Salvar lançamento</button>
+    <button class="cinza" onclick="limparFormulario()">Limpar</button>
+  </div>
+
+  <div class="card">
+    <h3>Resumo inteligente</h3>
+    <div id="alertas"></div>
+  </div>
+
+  <div class="card">
+    <h3>Resumo por categoria</h3>
+    <div id="resumoCategorias"></div>
+  </div>
+
+  <div class="card">
+    <h3>Histórico</h3>
+    <div id="historico">Carregando...</div>
+  </div>
 
 </div>
 
 <script type="module">
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
 import {
   getAuth,
-  onAuthStateChanged,
-  signOut
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
 import {
@@ -103,9 +256,12 @@ import {
   collection,
   addDoc,
   getDocs,
-  deleteDoc,
   updateDoc,
-  doc
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -121,110 +277,308 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// PERFIL SIMPLES
-let perfil = JSON.parse(localStorage.getItem("perfil"));
+let usuarioAtual = null;
+
+let perfil = JSON.parse(localStorage.getItem("perfilEuconomizo"));
 
 if (!perfil) {
-  const nome = prompt("Seu nome:");
-  const papel = prompt("Marido ou Esposa?");
-  const cor = prompt("Cor (blue, purple, green)");
+  const nome = prompt("Qual seu nome?");
+  const papel = prompt("Você é marido ou esposa?");
+  const cor = prompt("Escolha sua cor: azul, roxo, verde ou rosa");
 
-  perfil = { nome, papel, cor };
-  localStorage.setItem("perfil", JSON.stringify(perfil));
+  perfil = {
+    nome: nome || "Usuário",
+    papel: papel || "casal",
+    cor: cor || "verde"
+  };
+
+  localStorage.setItem("perfilEuconomizo", JSON.stringify(perfil));
 }
 
-document.getElementById("userInfo").innerHTML =
-  `<span style="color:${perfil.cor}">${perfil.nome} (${perfil.papel})</span>`;
+const cores = {
+  azul:"#60a5fa",
+  roxo:"#c084fc",
+  verde:"#4ade80",
+  rosa:"#f472b6",
+  blue:"#60a5fa",
+  purple:"#c084fc",
+  green:"#4ade80",
+  pink:"#f472b6"
+};
 
-const categoriasGanhos = ["Salário","Extra","Venda","Outros"];
-const categoriasGastos = ["Alimentação","Moradia","Lazer","Contas","Outros"];
+document.getElementById("perfilTexto").innerHTML =
+  `Logado como <strong style="color:${cores[perfil.cor] || perfil.cor}">${perfil.nome}</strong> (${perfil.papel})`;
 
-function atualizarCategorias(){
-  const tipo = document.getElementById("tipo").value;
-  const cat = document.getElementById("categoria");
+const categoriasGanhos = [
+  "Salário",
+  "Renda extra",
+  "Venda",
+  "Presente",
+  "Reembolso",
+  "Investimentos",
+  "Outros"
+];
 
-  cat.innerHTML = "";
+const categoriasGastos = [
+  "Alimentação",
+  "Moradia",
+  "Contas",
+  "Transporte",
+  "Saúde",
+  "Lazer",
+  "Compras",
+  "Educação",
+  "Igreja/doações",
+  "Dívidas",
+  "Cartão de crédito",
+  "Outros"
+];
 
-  const lista = tipo==="ganho"?categoriasGanhos:categoriasGastos;
-
-  lista.forEach(c=>{
-    const op = document.createElement("option");
-    op.value=c;
-    op.textContent=c;
-    cat.appendChild(op);
+function moeda(valor){
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
   });
 }
 
-window.salvar = async function(){
+function hoje(){
+  return new Date().toISOString().split("T")[0];
+}
 
+window.atualizarCategorias = function(){
   const tipo = document.getElementById("tipo").value;
-  const nome = document.getElementById("nome").value;
+  const categoria = document.getElementById("categoria");
+  const lista = tipo === "ganho" ? categoriasGanhos : categoriasGastos;
+
+  categoria.innerHTML = "";
+
+  lista.forEach(cat => {
+    const op = document.createElement("option");
+    op.value = cat;
+    op.textContent = cat;
+    categoria.appendChild(op);
+  });
+};
+
+window.limparFormulario = function(){
+  document.getElementById("editandoId").value = "";
+  document.getElementById("tipo").value = "ganho";
+  document.getElementById("nome").value = "";
+  document.getElementById("valor").value = "";
+  document.getElementById("observacao").value = "";
+  document.getElementById("data").value = hoje();
+  document.getElementById("btnSalvar").innerText = "Salvar lançamento";
+  atualizarCategorias();
+};
+
+window.salvarLancamento = async function(){
+  const id = document.getElementById("editandoId").value;
+  const tipo = document.getElementById("tipo").value;
+  const nome = document.getElementById("nome").value.trim();
   const valor = parseFloat(document.getElementById("valor").value);
   const categoria = document.getElementById("categoria").value;
   const data = document.getElementById("data").value;
+  const observacao = document.getElementById("observacao").value.trim();
 
-  if(!nome || !valor) return alert("Preencha tudo");
+  if(!usuarioAtual){
+    alert("Faça login novamente.");
+    window.location.href = "index.html";
+    return;
+  }
 
-  await addDoc(collection(db,"lancamentos"),{
-    tipo,nome,valor,categoria,data,
-    usuario:perfil.nome,
-    cor:perfil.cor
-  });
+  if(!nome){
+    alert("Digite o nome do lançamento.");
+    return;
+  }
 
-  carregar();
+  if(!valor || valor <= 0){
+    alert("Digite um valor válido.");
+    return;
+  }
+
+  if(!data){
+    alert("Escolha uma data.");
+    return;
+  }
+
+  const dados = {
+    tipo,
+    nome,
+    valor,
+    categoria,
+    data,
+    observacao,
+    usuarioId: usuarioAtual.uid,
+    usuarioEmail: usuarioAtual.email,
+    usuarioNome: perfil.nome,
+    usuarioPapel: perfil.papel,
+    usuarioCor: perfil.cor,
+    atualizadoEm: serverTimestamp()
+  };
+
+  if(id){
+    await updateDoc(doc(db, "lancamentos", id), dados);
+    alert("Lançamento atualizado!");
+  } else {
+    dados.criadoEm = serverTimestamp();
+    await addDoc(collection(db, "lancamentos"), dados);
+    alert("Lançamento salvo!");
+  }
+
+  limparFormulario();
+  carregarLancamentos();
 };
 
-window.excluir = async function(id){
-  await deleteDoc(doc(db,"lancamentos",id));
-  carregar();
+window.editarLancamento = function(id, itemTexto){
+  const item = JSON.parse(decodeURIComponent(itemTexto));
+
+  document.getElementById("editandoId").value = id;
+  document.getElementById("tipo").value = item.tipo;
+  atualizarCategorias();
+
+  document.getElementById("nome").value = item.nome;
+  document.getElementById("valor").value = item.valor;
+  document.getElementById("categoria").value = item.categoria;
+  document.getElementById("data").value = item.data;
+  document.getElementById("observacao").value = item.observacao || "";
+  document.getElementById("btnSalvar").innerText = "Salvar alteração";
+
+  window.scrollTo({top:260, behavior:"smooth"});
 };
 
-window.editar = async function(id,n,v){
-  const nome = prompt("Nome:",n);
-  const valor = prompt("Valor:",v);
-
-  await updateDoc(doc(db,"lancamentos",id),{
-    nome,valor:parseFloat(valor)
-  });
-
-  carregar();
+window.excluirLancamento = async function(id){
+  if(confirm("Deseja excluir este lançamento?")){
+    await deleteDoc(doc(db, "lancamentos", id));
+    carregarLancamentos();
+  }
 };
 
-async function carregar(){
+async function carregarLancamentos(){
+  const historico = document.getElementById("historico");
+  const resumoCategorias = document.getElementById("resumoCategorias");
+  const alertas = document.getElementById("alertas");
 
-  let ganhos=0,gastos=0;
-  const lista = document.getElementById("lista");
-  lista.innerHTML="";
+  historico.innerHTML = "Carregando...";
+  resumoCategorias.innerHTML = "";
+  alertas.innerHTML = "";
 
-  const snap = await getDocs(collection(db,"lancamentos"));
+  let totalGanhos = 0;
+  let totalGastos = 0;
+  let categorias = {};
+  let totalLazer = 0;
+  let totalAlimentacao = 0;
 
-  snap.forEach(d=>{
-    const item = d.data();
+  const q = query(collection(db, "lancamentos"), orderBy("data", "desc"));
+  const snap = await getDocs(q);
 
-    if(item.tipo==="ganho") ganhos+=item.valor;
-    else gastos+=item.valor;
+  historico.innerHTML = "";
 
-    lista.innerHTML+=`
-    <div class="item">
-      <b>${item.nome}</b> - ${item.tipo} - R$ ${item.valor}<br>
-      <span style="color:${item.cor}">${item.usuario}</span><br>
-      <button onclick="editar('${d.id}','${item.nome}',${item.valor})">Editar</button>
-      <button onclick="excluir('${d.id}')">Excluir</button>
-    </div>
+  if(snap.empty){
+    historico.innerHTML = "Nenhum lançamento ainda.";
+  }
+
+  snap.forEach(documento => {
+    const item = documento.data();
+
+    if(item.tipo === "ganho"){
+      totalGanhos += Number(item.valor);
+    } else {
+      totalGastos += Number(item.valor);
+    }
+
+    categorias[item.categoria] = (categorias[item.categoria] || 0) + Number(item.valor);
+
+    if(item.categoria === "Lazer") totalLazer += Number(item.valor);
+    if(item.categoria === "Alimentação") totalAlimentacao += Number(item.valor);
+
+    const corPessoa = cores[item.usuarioCor] || item.usuarioCor || "#4ade80";
+    const classeValor = item.tipo === "ganho" ? "verde" : "vermelho";
+    const sinal = item.tipo === "ganho" ? "+" : "-";
+
+    const itemSeguro = encodeURIComponent(JSON.stringify({
+      tipo:item.tipo || "",
+      nome:item.nome || "",
+      valor:item.valor || 0,
+      categoria:item.categoria || "",
+      data:item.data || "",
+      observacao:item.observacao || ""
+    }));
+
+    historico.innerHTML += `
+      <div class="lancamento">
+        <div class="linha">
+          <div>
+            <strong>${item.nome}</strong><br>
+            <span class="tag">${item.categoria}</span>
+          </div>
+
+          <div class="${classeValor}">
+            <strong>${sinal} R$ ${moeda(item.valor)}</strong>
+          </div>
+        </div>
+
+        <div class="pequeno">
+          Data: ${item.data || "sem data"}<br>
+          Por: <span style="color:${corPessoa}; font-weight:bold;">
+            ${item.usuarioNome || "Usuário"} (${item.usuarioPapel || "perfil"})
+          </span><br>
+          ${item.observacao ? "Obs: " + item.observacao : ""}
+        </div>
+
+        <div class="acoes">
+          <button class="editar" onclick="editarLancamento('${documento.id}','${itemSeguro}')">Editar</button>
+          <button class="excluir" onclick="excluirLancamento('${documento.id}')">Excluir</button>
+        </div>
+      </div>
     `;
   });
 
-  document.getElementById("ganhos").innerText=ganhos.toFixed(2);
-  document.getElementById("gastos").innerText=gastos.toFixed(2);
-  document.getElementById("saldo").innerText=(ganhos-gastos).toFixed(2);
+  const saldo = totalGanhos - totalGastos;
+
+  document.getElementById("totalGanhos").textContent = moeda(totalGanhos);
+  document.getElementById("totalGastos").textContent = moeda(totalGastos);
+  document.getElementById("saldoFinal").textContent = moeda(saldo);
+
+  Object.keys(categorias).forEach(cat => {
+    resumoCategorias.innerHTML += `
+      <div class="linha" style="padding:9px 0;border-bottom:1px solid rgba(255,255,255,.12)">
+        <span>${cat}</span>
+        <strong>R$ ${moeda(categorias[cat])}</strong>
+      </div>
+    `;
+  });
+
+  if(!resumoCategorias.innerHTML){
+    resumoCategorias.innerHTML = "Ainda não há categorias registradas.";
+  }
+
+  if(saldo < 0){
+    alertas.innerHTML += `<div class="alerta">Atenção: os gastos estão maiores que os ganhos.</div>`;
+  }
+
+  if(totalGanhos > 0 && totalLazer > totalGanhos * 0.25){
+    alertas.innerHTML += `<div class="alerta">O gasto com lazer está alto. Talvez reduzir um pouco ajude nas metas do casal.</div>`;
+  }
+
+  if(totalGanhos > 0 && totalAlimentacao > totalGanhos * 0.35){
+    alertas.innerHTML += `<div class="alerta">Alimentação está consumindo boa parte da renda. Vale observar mercado, delivery e lanches.</div>`;
+  }
+
+  if(!alertas.innerHTML){
+    alertas.innerHTML = `<div class="alerta">Tudo certo por enquanto. Continuem registrando para o app entender melhor o padrão de vocês.</div>`;
+  }
 }
 
-onAuthStateChanged(auth,(user)=>{
-  if(!user) window.location.href="index.html";
-  atualizarCategorias();
-  carregar();
+onAuthStateChanged(auth, user => {
+  if(user){
+    usuarioAtual = user;
+    document.getElementById("data").value = hoje();
+    atualizarCategorias();
+    carregarLancamentos();
+  } else {
+    window.location.href = "index.html";
+  }
 });
-
 </script>
 
 </body>
