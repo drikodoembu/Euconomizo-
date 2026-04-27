@@ -1,99 +1,41 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-  <meta charset="UTF-8">
-  <title>Euconomizo</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4CAF50, #2E7D32);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+  const firebaseConfig = {
+    apiKey: "AIzaSyCElTa77Q7PiEgsMadbxDxZvxC-QE1P-ks",
+    authDomain: "euconomizo-ebc13.firebaseapp.com",
+    projectId: "euconomizo-ebc13",
+    storageBucket: "euconomizo-ebc13.firebasestorage.app",
+    messagingSenderId: "184248751974",
+    appId: "1:184248751974:web:43edb4192a766a2a019aa7"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  window.login = async function () {
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+      alert("Login realizado com sucesso 🚀");
+      window.location.href = "dashboard.html";
+    } catch (error) {
+      alert(error.message);
     }
+  };
 
-    .container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 15px;
-      width: 90%;
-      max-width: 350px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-      text-align: center;
+  window.cadastrar = async function () {
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+
+    try {
+      await createUserWithEmailAndPassword(auth, email, senha);
+      alert("Conta criada com sucesso 🎉");
+    } catch (error) {
+      alert(error.message);
     }
-
-    h1 {
-      margin-bottom: 10px;
-      color: #2E7D32;
-    }
-
-    p {
-      margin-bottom: 20px;
-      color: #666;
-    }
-
-    input {
-      width: 100%;
-      padding: 12px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #4CAF50;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #388E3C;
-    }
-
-    .link {
-      margin-top: 15px;
-      font-size: 14px;
-      color: #555;
-      cursor: pointer;
-    }
-  </style>
-</head>
-
-<body>
-
-<div class="container">
-  <h1>Euconomizo</h1>
-  <p>Controle financeiro do casal 💚</p>
-
-  <input type="email" id="email" placeholder="Seu e-mail">
-  <input type="password" id="senha" placeholder="Sua senha">
-
-  <button onclick="login()">Entrar</button>
-  <button onclick="cadastrar()">Criar conta</button>
-
-  <div class="link">Organize suas finanças juntos 🚀</div>
-</div>
-
-<script>
-  function login() {
-    alert("Login será conectado ao Firebase no próximo passo");
-  }
-
-  function cadastrar() {
-    alert("Cadastro será conectado ao Firebase no próximo passo");
-  }
+  };
 </script>
-
-</body>
-</html>
