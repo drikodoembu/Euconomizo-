@@ -1,1 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Euconomizo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#0b1120;--card:rgba(255,255,255,.10);--border:rgba(255,255,255,.14);
+  --muted:#cbd5e1;--green:#4ade80;--red:#fb7185;--blue:#60a5fa;--purple:#c084fc;--yellow:#facc15;
+}
+body{margin:0;font-family:Arial,sans-serif;background:radial-gradient(circle at top,#1e3a8a 0,#0f172a 45%,#020617 100%);color:white;padding-bottom:88px}
+.app{display:flex;min-height:100vh}
+.sidebar{display:none;width:245px;background:rgba(2,6,23,.82);border-right:1px solid var(--border);padding:20px 14px;position:fixed;inset:0 auto 0 0}
+.sidebar h2{margin:0 0 20px;font-size:26px}
+.sidebar button{width:100%;text-align:left;background:transparent;color:var(--muted);border:0;padding:13px 14px;border-radius:14px;margin-bottom:6px;font-weight:bold}
+.sidebar button.ativo{background:rgba(74,222,128,.16);color:var(--green)}
+.main{width:100%}
+header{padding:24px 16px;background:linear-gradient(135deg,rgba(20,83,45,.95),rgba(30,64,175,.85));border-radius:0 0 30px 30px}
+header h1{margin:0;font-size:30px}
+header p{margin:6px 0 0;color:#d1fae5;font-size:14px}
+.container{padding:15px;max-width:1100px;margin:auto}
+.secao{display:none}.secao.ativa{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:17px;margin-bottom:15px;box-shadow:0 12px 30px rgba(0,0,0,.25);backdrop-filter:blur(14px)}
+.card h3{margin:0 0 12px}
+.grid3,.grid2{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){body{padding-bottom:0}.sidebar{display:block}.main{margin-left:245px}.mobileMenu{display:none!important}.grid3{grid-template-columns:repeat(3,1fr)}.grid2{grid-template-columns:1fr 1fr}}
+.valor{font-size:28px;font-weight:bold;margin-top:6px}
+.verde{color:var(--green)}.vermelho{color:var(--red)}.azul{color:var(--blue)}.roxo{color:var(--purple)}.amarelo{color:var(--yellow)}
+input,select,textarea{width:100%;padding:13px;border:0;border-radius:15px;margin:7px 0 12px;font-size:16px;outline:none}
+textarea{min-height:70px;resize:none}
+label{font-size:13px;font-weight:bold;color:#e5e7eb}
+button{width:100%;padding:13px;border:0;border-radius:16px;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;font-weight:bold;font-size:15px;margin-top:7px;cursor:pointer}
+.btnAzul{background:linear-gradient(135deg,#3b82f6,#2563eb)}.btnRoxo{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}.btnVermelho{background:linear-gradient(135deg,#ef4444,#b91c1c)}.btnCinza{background:#334155}.btnAmarelo{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.item{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:13px;margin-bottom:10px}
+.linha{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.tag{display:inline-block;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.16);font-size:12px;margin-top:6px}
+.pequeno{font-size:13px;color:var(--muted);line-height:1.5;margin-top:8px}
+.acoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
+.alerta{background:rgba(250,204,21,.15);border-left:5px solid var(--yellow);padding:12px;border-radius:14px;margin-bottom:10px}
+.sucesso{background:rgba(74,222,128,.14);border-left-color:var(--green)}
+.risco{background:rgba(251,113,133,.14);border-left-color:var(--red)}
+.barra{height:12px;background:#334155;border-radius:99px;overflow:hidden;margin-top:8px}
+.barra span{display:block;height:100%;background:linear-gradient(135deg,#22c55e,#60a5fa);width:0%}
+.scoreBox{display:flex;align-items:center;gap:15px}
+.scoreCircle{width:86px;height:86px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:bold;border:8px solid var(--green);flex-shrink:0}
+.quickGrid{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:520px){.quickGrid{grid-template-columns:repeat(3,1fr)}}
+.oculto{display:none!important}
+.mobileMenu{position:fixed;bottom:0;left:0;right:0;background:#111827;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(5,1fr);z-index:20}
+.mobileMenu button{background:none;border-radius:0;margin:0;padding:10px 4px;font-size:11px;color:var(--muted)}
+.mobileMenu button.ativo{color:var(--green)}
+.modalFundo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:50;padding:15px;overflow:auto}
+.modalCaixa{max-width:540px;margin:35px auto;background:#111827;border:1px solid var(--border);border-radius:26px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.modalTopo{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.modalTopo h3{margin:0}.fechar{width:auto;background:#334155;padding:8px 12px;border-radius:12px}
+.recado{border-left:5px solid var(--green)}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar oculto" id="sidebarApp">
+  <h2>Euconomizo</h2>
+  <button class="ativo" onclick="abrirSecao('dashboard',this)">🏠 Dashboard</button>
+  <button onclick="abrirSecao('lancamentos',this)">➕ Lançamentos</button>
+  <button onclick="abrirSecao('fixos',this)">📌 Gastos Fixos</button>
+  <button onclick="abrirSecao('parcelados',this)">💳 Parcelados</button>
+  <button onclick="abrirSecao('metas',this)">🎯 Metas</button>
+  <button onclick="abrirSecao('relatorios',this)">📊 Relatórios</button>
+  <button onclick="abrirSecao('recados',this)">💬 Recados</button>
+  <button onclick="abrirSecao('historicoSecao',this)">📜 Histórico</button>
+  <button onclick="abrirSecao('config',this)">⚙️ Configurações</button>
+</aside>
+
+<main class="main">
+<header>
+  <h1>Euconomizo</h1>
+  <p id="perfilTexto">Controle financeiro do casal</p>
+</header>
+
+<div class="container">
+
+<section id="configuracaoInicial" class="card">
+  <h3>Configurar casal</h3>
+  <label>Seu nome</label><input id="perfilNome" placeholder="Ex: Adriano">
+  <label>Você é</label><select id="perfilPapel"><option value="Marido">Marido</option><option value="Esposa">Esposa</option></select>
+  <label>Sua cor</label><select id="perfilCor"><option value="azul">Azul</option><option value="roxo">Roxo</option><option value="verde">Verde</option><option value="rosa">Rosa</option></select>
+  <button onclick="criarCasal()">Criar casal</button>
+  <hr style="border-color:rgba(255,255,255,.15);margin:18px 0">
+  <label>Ou entre com o código do casal</label><input id="codigoCasal" placeholder="Ex: EUCO-1234">
+  <button class="btnRoxo" onclick="entrarNoCasal()">Entrar no casal</button>
+</section>
+
+<div id="appArea" class="oculto">
+
+<section id="dashboard" class="secao ativa">
+  <div class="grid3">
+    <div class="card"><div>Entrou no mês</div><div class="valor verde">R$ <span id="totalGanhos">0,00</span></div></div>
+    <div class="card"><div>Saiu no mês</div><div class="valor vermelho">R$ <span id="totalGastos">0,00</span></div></div>
+    <div class="card"><div>Sobrou no mês</div><div class="valor azul">R$ <span id="saldoFinal">0,00</span></div></div>
+  </div>
+
+  <div class="card">
+    <h3>Ações rápidas</h3>
+    <div class="quickGrid">
+      <button onclick="abrirModalLancamento('ganho')">+ Ganho</button>
+      <button class="btnVermelho" onclick="abrirModalLancamento('gasto')">+ Gasto</button>
+      <button class="btnRoxo" onclick="abrirSecaoPorId('metas')">+ Meta</button>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card"><h3>Saúde financeira</h3><div id="saudeFinanceira"></div></div>
+    <div class="card"><h3>Resumo mensal</h3><div id="resumoMensal"></div></div>
+  </div>
+
+  <div class="card"><h3>Mini gráfico de gastos</h3><canvas id="miniGraficoCategorias"></canvas></div>
+  <div class="card"><h3>Alertas inteligentes</h3><div id="alertas"></div></div>
+  <div class="card"><h3>Metas em andamento</h3><div id="metasDashboard">Nenhuma meta cadastrada ainda.</div></div>
+  <div class="card"><h3>Últimos lançamentos</h3><div id="ultimosLancamentos"></div></div>
+</section>
+
+<section id="lancamentos" class="secao">
+  <div class="card">
+    <h3>Lançamentos</h3>
+    <div class="quickGrid">
+      <button onclick="abrirModalLancamento('ganho')">+ Ganho</button>
+      <button class="btnVermelho" onclick="abrirModalLancamento('gasto')">+ Gasto</button>
+      <button class="btnAzul" onclick="abrirSecaoPorId('historicoSecao')">Ver histórico</button>
+    </div>
+  </div>
+  <div class="card"><h3>Últimos lançamentos</h3><div id="ultimosLancamentos2"></div></div>
+</section>
+
+<section id="fixos" class="secao">
+  <div class="card">
+    <h3>Gasto fixo</h3>
+    <label>Nome</label><input id="fixoNome" placeholder="Ex: Aluguel, Internet">
+    <label>Valor</label><input id="fixoValor" type="number" step="0.01">
+    <label>Categoria</label><select id="fixoCategoria"></select>
+    <label>Dia de vencimento</label><input id="fixoDia" type="number" min="1" max="31" placeholder="Ex: 10">
+    <button onclick="salvarFixo()">Salvar gasto fixo</button>
+  </div>
+  <div class="card"><h3>Fixos cadastrados</h3><div id="listaFixos"></div></div>
+</section>
+
+<section id="parcelados" class="secao">
+  <div class="card">
+    <h3>Compra parcelada</h3>
+    <label>Nome</label><input id="parcelaNome" placeholder="Ex: Geladeira, Celular">
+    <label>Valor da parcela</label><input id="parcelaValor" type="number" step="0.01">
+    <label>Total de parcelas</label><input id="parcelaTotal" type="number" min="1">
+    <label>Parcelas já pagas</label><input id="parcelaPagas" type="number" min="0" value="0">
+    <label>Categoria</label><select id="parcelaCategoria"></select>
+    <label>Próximo pagamento</label><input id="parcelaData" type="date">
+    <button onclick="salvarParcelado()">Salvar compra parcelada</button>
+  </div>
+  <div class="card"><h3>Compras parceladas</h3><div id="listaParcelados"></div></div>
+</section>
+
+<section id="metas" class="secao">
+  <div class="card">
+    <h3>Nova meta do casal</h3>
+    <label>Nome da meta</label><input id="metaNome" placeholder="Ex: Viagem, Reserva de emergência">
+    <label>Valor alvo</label><input id="metaAlvo" type="number" step="0.01">
+    <label>Valor inicial</label><input id="metaAtual" type="number" step="0.01" value="0">
+    <label>Prazo</label><input id="metaPrazo" type="date">
+    <button onclick="salvarMeta()">Salvar meta</button>
+  </div>
+  <div class="card"><h3>Metas cadastradas</h3><div id="listaMetas"></div></div>
+</section>
+
+<section id="relatorios" class="secao">
+  <div class="card"><h3>Visão do casal</h3><div id="visaoCasal"></div></div>
+  <div class="card"><h3>Relatório do casal</h3><div id="relatorioCasal"></div></div>
+  <div class="card"><h3>Contribuições em metas</h3><div id="relatorioMetas"></div></div>
+  <div class="card"><h3>Gráfico por categoria</h3><canvas id="graficoCategorias"></canvas></div>
+  <div class="card"><h3>Resumo por categoria</h3><div id="resumoCategorias"></div></div>
+</section>
+
+<section id="recados" class="secao">
+  <div class="card">
+    <h3>Recados do casal</h3>
+    <label>Escreva um recado</label>
+    <textarea id="novoRecado" placeholder="Ex: Amor, vamos evitar delivery essa semana 💚"></textarea>
+    <button onclick="salvarRecado()">Enviar recado</button>
+  </div>
+  <div class="card"><h3>Últimos recados</h3><div id="listaRecados"></div></div>
+</section>
+
+<section id="historicoSecao" class="secao">
+  <div class="card"><h3>Histórico completo</h3><div id="historico">Carregando...</div></div>
+</section>
+
+<section id="config" class="secao">
+  <div class="card">
+    <h3>Configurações do casal</h3>
+    <p id="infoCasal"></p>
+    <button class="btnCinza" onclick="copiarCodigo()">Copiar código do casal</button>
+  </div>
+</section>
+
+</div>
+</div>
+</main>
+</div>
+
+<div id="modalLancamento" class="modalFundo">
+  <div class="modalCaixa">
+    <div class="modalTopo"><h3 id="tituloModal">Novo lançamento</h3><button class="fechar" onclick="fecharModalLancamento()">X</button></div>
+    <input type="hidden" id="editandoId">
+    <label>Tipo</label><select id="tipo" onchange="atualizarCategorias()"><option value="ganho">Ganho</option><option value="gasto">Gasto</option></select>
+    <label>Nome</label><input id="nome" placeholder="Ex: Salário, Mercado, Aluguel">
+    <label>Valor</label><input id="valor" type="number" step="0.01" placeholder="Ex: 120.50">
+    <label>Categoria</label><select id="categoria"></select>
+    <label>Data</label><input id="data" type="date">
+    <label>Observação</label><textarea id="observacao" placeholder="Ex: compra da semana, renda extra..."></textarea>
+    <button onclick="salvarLancamento()" id="btnSalvar">Salvar lançamento</button>
+    <button class="btnCinza" onclick="limparFormulario()">Limpar</button>
+  </div>
+</div>
+
+<div id="modalContribuicao" class="modalFundo">
+  <div class="modalCaixa">
+    <div class="modalTopo"><h3>Adicionar valor à meta</h3><button class="fechar" onclick="fecharModalContribuicao()">X</button></div>
+    <input type="hidden" id="metaContribuicaoId">
+    <p id="metaContribuicaoNome" class="pequeno"></p>
+    <label>Valor que deseja adicionar</label>
+    <input id="valorContribuicaoMeta" type="number" step="0.01" placeholder="Ex: 100">
+    <label>Observação</label>
+    <textarea id="obsContribuicaoMeta" placeholder="Ex: economizei no mercado, sobrou do salário..."></textarea>
+    <button onclick="salvarContribuicaoMeta()">Adicionar à meta</button>
+  </div>
+</div>
+
+<nav class="mobileMenu oculto" id="menuApp">
+  <button class="ativo" onclick="abrirSecao('dashboard',this)">🏠<br>Início</button>
+  <button onclick="abrirSecao('lancamentos',this)">➕<br>Lançar</button>
+  <button onclick="abrirSecao('fixos',this)">📌<br>Fixos</button>
+  <button onclick="abrirSecao('metas',this)">🎯<br>Metas</button>
+  <button onclick="abrirSecao('recados',this)">💬<br>Recados</button>
+</nav>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getAuth,onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+import { getFirestore,collection,addDoc,getDocs,updateDoc,deleteDoc,doc,setDoc,getDoc,query,where,serverTimestamp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+
+const firebaseConfig={apiKey:"AIzaSyCElTa77Q7PiEgsMadbxDxZvxC-QE1P-ks",authDomain:"euconomizo-ebc13.firebaseapp.com",projectId:"euconomizo-ebc13",storageBucket:"euconomizo-ebc13.firebasestorage.app",messagingSenderId:"184248751974",appId:"1:184248751974:web:43edb4192a766a2a019aa7"};
+const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
+
+let usuarioAtual=null,perfil=null,grafico=null,miniGrafico=null,lancamentosCache=[],metasCache=[],contribuicoesCache=[];
+const categoriasGanhos=["Salário","Renda extra","Venda","Presente","Reembolso","Investimentos","Outros"];
+const categoriasGastos=["Alimentação","Moradia","Contas","Transporte","Saúde","Lazer","Compras","Educação","Igreja/doações","Dívidas","Cartão de crédito","Parcelado","Outros"];
+const cores={azul:"#60a5fa",roxo:"#c084fc",verde:"#4ade80",rosa:"#f472b6"};
+
+window.abrirSecao=function(id,botao){document.querySelectorAll(".secao").forEach(s=>s.classList.remove("ativa"));document.getElementById(id).classList.add("ativa");document.querySelectorAll(".mobileMenu button,.sidebar button").forEach(b=>b.classList.remove("ativo"));if(botao)botao.classList.add("ativo")};
+window.abrirSecaoPorId=function(id){document.querySelectorAll(".secao").forEach(s=>s.classList.remove("ativa"));document.getElementById(id).classList.add("ativa")};
+window.abrirModalLancamento=function(tipoPadrao){limparFormulario();if(tipoPadrao){document.getElementById("tipo").value=tipoPadrao;atualizarCategorias();document.getElementById("tituloModal").innerText=tipoPadrao==="ganho"?"Novo ganho":"Novo gasto"}document.getElementById("modalLancamento").style.display="block"};
+window.fecharModalLancamento=function(){document.getElementById("modalLancamento").style.display="none"};
+window.fecharModalContribuicao=function(){document.getElementById("modalContribuicao").style.display="none"};
+
+function moeda(v){return Number(v||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function hoje(){return new Date().toISOString().split("T")[0]}
+function mesAtual(){return new Date().toISOString().slice(0,7)}
+function codigo(){return "EUCO-"+Math.floor(1000+Math.random()*9000)}
+function preencher(id,lista){const s=document.getElementById(id);s.innerHTML="";lista.forEach(i=>{const o=document.createElement("option");o.value=i;o.textContent=i;s.appendChild(o)})}
+
+function mostrarApp(){
+  document.getElementById("configuracaoInicial").classList.add("oculto");
+  document.getElementById("appArea").classList.remove("oculto");
+  document.getElementById("menuApp").classList.remove("oculto");
+  document.getElementById("sidebarApp").classList.remove("oculto");
+  document.getElementById("perfilTexto").innerHTML=`Casal: <b>${perfil.codigoCasal}</b> • <span style="color:${cores[perfil.cor]}">${perfil.nome}</span> (${perfil.papel})`;
+  document.getElementById("infoCasal").innerHTML=`Código do casal: <b>${perfil.codigoCasal}</b><br>Nome: ${perfil.nome}<br>Perfil: ${perfil.papel}`;
+  atualizarCategorias();preencher("fixoCategoria",categoriasGastos);preencher("parcelaCategoria",categoriasGastos);
+  document.getElementById("data").value=hoje();document.getElementById("parcelaData").value=hoje();document.getElementById("metaPrazo").value=hoje();
+  carregarTudo();
+}
+
+async function salvarPerfil(){await setDoc(doc(db,"usuarios",usuarioAtual.uid),perfil,{merge:true});localStorage.setItem("perfilEuconomizo",JSON.stringify(perfil))}
+window.criarCasal=async function(){const nome=document.getElementById("perfilNome").value.trim(),papel=document.getElementById("perfilPapel").value,cor=document.getElementById("perfilCor").value;if(!nome)return alert("Digite seu nome.");const cod=codigo();const casal=await addDoc(collection(db,"casais"),{codigo:cod,criadoPor:usuarioAtual.uid,criadoEm:serverTimestamp()});perfil={uid:usuarioAtual.uid,email:usuarioAtual.email,nome,papel,cor,casalId:casal.id,codigoCasal:cod};await salvarPerfil();alert("Casal criado! Código: "+cod);mostrarApp()};
+window.entrarNoCasal=async function(){const nome=document.getElementById("perfilNome").value.trim(),papel=document.getElementById("perfilPapel").value,cor=document.getElementById("perfilCor").value,cod=document.getElementById("codigoCasal").value.trim().toUpperCase();if(!nome)return alert("Digite seu nome.");if(!cod)return alert("Digite o código.");const snap=await getDocs(query(collection(db,"casais"),where("codigo","==",cod)));if(snap.empty)return alert("Código não encontrado.");perfil={uid:usuarioAtual.uid,email:usuarioAtual.email,nome,papel,cor,casalId:snap.docs[0].id,codigoCasal:cod};await salvarPerfil();alert("Você entrou no casal!");mostrarApp()};
+window.atualizarCategorias=function(){preencher("categoria",document.getElementById("tipo").value==="ganho"?categoriasGanhos:categoriasGastos)};
+window.limparFormulario=function(){document.getElementById("editandoId").value="";document.getElementById("tipo").value="ganho";document.getElementById("nome").value="";document.getElementById("valor").value="";document.getElementById("observacao").value="";document.getElementById("data").value=hoje();document.getElementById("btnSalvar").innerText="Salvar lançamento";document.getElementById("tituloModal").innerText="Novo lançamento";atualizarCategorias()};
+
+window.salvarLancamento=async function(){
+  const id=document.getElementById("editandoId").value,tipo=document.getElementById("tipo").value,nome=document.getElementById("nome").value.trim(),valor=parseFloat(document.getElementById("valor").value),categoria=document.getElementById("categoria").value,data=document.getElementById("data").value,observacao=document.getElementById("observacao").value.trim();
+  if(!nome)return alert("Digite o nome.");if(!valor||valor<=0)return alert("Digite um valor válido.");
+  const dado
